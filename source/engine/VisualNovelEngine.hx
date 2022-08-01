@@ -27,28 +27,51 @@ class VisualNovelEngine extends FlxGroup
 		super();
 		this.story = story;
 		add(textPanel);
-		textPanel.text.size = 32;
 		next();
 	}
 
 	public function setFont(font:String)
 	{
-		textPanel.text.font = font;
+		textPanel.setFont(font);
 	}
 
 	public function showText(text:String)
 	{
 		if (hasHistory())
-			return getHistory();
-		textPanel.text.text = text;
-		return addHistory(true);
+			return cast(getHistory());
+		textPanel.setText(text, next);
+		return cast(addHistoryAndStop(true));
+	}
+
+	public function showQuestion(text:String, positiveText = "Yes", negativeText = "No"):Bool
+	{
+		if (hasHistory())
+			return cast(getHistory());
+		textPanel.setChoices(text, [positiveText, negativeText], (i) ->
+		{
+			addHistory(i == 0);
+			next();
+		});
+		stop();
+		return cast(addHistoryAndStop(true));
+	}
+
+	public function showChoices(text:String, choices:Array<String>):String
+	{
+		if (hasHistory())
+			return cast(getHistory());
+		textPanel.setChoices(text, choices, (i) ->
+		{
+			addHistory(choices[i]);
+			next();
+		});
+		stop();
+		return cast(addHistoryAndStop("pending"));
 	}
 
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		if (FlxG.keys.justPressed.SPACE)
-			next();
 	}
 
 	function next()
@@ -61,6 +84,11 @@ class VisualNovelEngine extends FlxGroup
 		catch (stop:StopException) {}
 	}
 
+	inline function stop()
+	{
+		throw new StopException();
+	}
+
 	function hasHistory()
 	{
 		return historyPos < history.length;
@@ -71,10 +99,16 @@ class VisualNovelEngine extends FlxGroup
 		return history[historyPos++];
 	}
 
+	function addHistoryAndStop(ret:Dynamic)
+	{
+		history.push(ret);
+		stop();
+		return ret;
+	}
+
 	function addHistory(ret:Dynamic)
 	{
 		history.push(ret);
-		throw new StopException();
 		return ret;
 	}
 }

@@ -23,13 +23,20 @@ class PlayState extends FlxState
 
 	function story(vn:VisualNovelEngine)
 	{
-		vn.showText("Lorem Ipsum Dolor Est Bla Blub BlaLorem Ipsum Dolor Est Bla Blub BlaLorem Ipsum Dolor Est Bla Blub BlaLorem Ipsum Dolor Est Bla Blub Bla");
+		var choice = vn.showChoices("what do you like?", ["Apples", "Oranges"]);
+		vn.showText("Lorem Ipsum Dolor Est ");
 		vn.showText("3");
 		vn.setFont(AssetPaths.LouisGeorgeCafe__ttf);
-		vn.showText("4");
-		if (vn.showText("Question"))
+		vn.showText("So you like " + choice);
+		if (vn.showQuestion("Question"))
 		{
 			vn.showText("true");
+			vn.showText("5");
 		}
+		else
+		{
+			vn.showText("false");
+		}
+		vn.showText("6");
 	}
 }
