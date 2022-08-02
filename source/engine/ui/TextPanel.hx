@@ -40,13 +40,17 @@ class TextPanel extends Panel
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		if (textProgress < text.length)
+		if (text != null && textProgress < text.length)
 		{
 			textProgress += elapsed * (FlxG.keys.pressed.CONTROL ? writeSpeedFast : writeSpeed);
 			textField.text = text.substr(0, Math.floor(textProgress));
 		}
 		else
 		{
+			for (choice in choices)
+			{
+				choice.visible = true;
+			}
 			if (nextCallback != null && FlxG.keys.justPressed.SPACE)
 				nextCallback();
 		}
@@ -93,6 +97,7 @@ class TextPanel extends Panel
 			choices.push(choice);
 			++i;
 			yPos += choice.height;
+			choice.visible = false;
 		}
 		textField.text = "";
 	}

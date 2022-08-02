@@ -1,8 +1,11 @@
 package engine;
 
+import engine.ui.Stage;
 import engine.ui.TextPanel;
+import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.group.FlxGroup;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.text.FlxText;
 import haxe.Exception;
 
@@ -14,25 +17,34 @@ private class StopException extends Exception
 	}
 }
 
-class VisualNovelEngine extends FlxGroup
+class VisualNovelEngine
 {
 	var history = new Array<Dynamic>();
 	var historyPos = 0;
 	var story:(VisualNovelEngine) -> Void;
 
-	public var textPanel = new TextPanel(0, FlxG.height - FlxG.height * 0.3, FlxG.width, FlxG.height * 0.3);
+	public var group(default, null) = new FlxGroup();
+
+	var textPanel = new TextPanel(0, FlxG.height - FlxG.height * 0.3, FlxG.width, FlxG.height * 0.3);
+	var stage = new Stage();
 
 	public function new(story:(VisualNovelEngine) -> Void)
 	{
-		super();
 		this.story = story;
-		add(textPanel);
+		group.add(stage);
+		group.add(textPanel);
 		next();
 	}
 
 	public function setFont(font:String)
 	{
+		if (hasHistory())
+		{
+			getHistory();
+			return;
+		}
 		textPanel.setFont(font);
+		addHistory(font);
 	}
 
 	public function showText(text:String)
@@ -69,9 +81,23 @@ class VisualNovelEngine extends FlxGroup
 		return cast(addHistoryAndStop("pending"));
 	}
 
-	override function update(elapsed:Float)
+	public function getRandom(min:Int, max:Int):Int
 	{
-		super.update(elapsed);
+		if (hasHistory())
+			return cast(getHistory());
+		var value = FlxG.random.int(min, max);
+		return cast(addHistory(value));
+	}
+
+	public function setBackground(background:FlxGraphicAsset)
+	{
+		if (hasHistory())
+		{
+			getHistory();
+			return;
+		}
+		stage.setBackground(background);
+		addHistory(background);
 	}
 
 	function next()
@@ -102,6 +128,7 @@ class VisualNovelEngine extends FlxGroup
 	function addHistoryAndStop(ret:Dynamic)
 	{
 		history.push(ret);
+		historyPos++;
 		stop();
 		return ret;
 	}
@@ -109,6 +136,7 @@ class VisualNovelEngine extends FlxGroup
 	function addHistory(ret:Dynamic)
 	{
 		history.push(ret);
+		historyPos++;
 		return ret;
 	}
 }
